@@ -2,12 +2,19 @@ import cv2
 from roifile2 import ImagejRoi
 import matplotlib.pyplot as plt
 import numpy as np
+from tools import get_roi_pixels
+from scipy.spatial import ConvexHull
+from scipy.spatial.distance import euclidean
+from shapely.geometry import Polygon
 
 
 def get_axes_length(roi, show=False):
-    """Returns the length of the major axis and minor axis or bounding rectangle (rotated as needed)
+    """Returns the length of the major axis and minor axis of bounding rectangle (rotated as needed)
+    This can be at times larger than FeretX and FeretY
+
     :param roi - an ImageJ ROI from polygon
     :param show - True if you want the plot displayed and False if you don't"""
+
     def distance(p1, p2):
         x1 = p1[0]
         y1 = p1[1]
@@ -59,7 +66,51 @@ def get_axes_length(roi, show=False):
     if show:
         plt.show()
 
-    return max(axis_1, axis_2), min(axis_1, axis_2)
+    return round(max(axis_1, axis_2), 1), round(min(axis_1, axis_2), 1)
 
 
-get_axes_length("all.roi", True)
+def contour_area(roi, resolution=None):
+    """Returns the number of pixels within ROI and the area
+    in terms of microns if a resolution is provided"""
+    inside_px = get_roi_pixels(roi)
+    pixel_area = len(inside_px)
+    area = None
+    if resolution is not None:
+        area = pixel_area / resolution
+    return pixel_area, area
+
+
+def perimeter_convex_hull(roi):
+    """returns the perimeter of the ROI"""
+    roi = ImagejRoi.fromfile(roi)
+    coordinates = roi.integer_coordinates
+
+    hull = ConvexHull(coordinates)
+
+    vertices = hull.vertices.tolist() + [hull.vertices[0]]
+    perimeter = np.sum([euclidean(x, y) for x, y in zip(coordinates[vertices], coordinates[vertices][1:])])
+    return round(perimeter, 1)
+
+
+def centroid(roi_path, image_path=None, show=False):
+    """returns the centroid of the given roi (xc, yc).
+    If an image_path is provided and show=True, the value is printed and shown on the image"""
+    roi = ImagejRoi.fromfile(roi_path)
+    coordinates = roi.integer_coordinates
+
+    outline = Polygon(coordinates)
+    xc = int(outline.centroid.x) + roi.left
+    yc = int(outline.centroid.y) + roi.top
+
+    if show:
+        print(xc, yc)
+        image = cv2.imread(image_path)
+        cv2.circle(image, (xc, yc), 3, (255, 255, 255), thickness=3)
+        cv2.imshow('i', image)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
+
+    return xc, yc
+
+
+
