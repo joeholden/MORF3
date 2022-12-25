@@ -18,12 +18,14 @@ for animal in list_animals:
     vessel_distance = os.path.join(excel_sheets, "Distance to Vessel")
     vessel_diameter = os.path.join(excel_sheets, "Vessel Diameters")
     vessel_counts = os.path.join(excel_sheets, "Vessel Counts")
+    logs = os.path.join(excel_sheets, "IJ Polygon Logs")
 
     hull = os.path.join(rois, "Complex Hull")
     full = os.path.join(rois, "Full Complex")
 
     dirs = [animal_home, excel_sheets, png_vessels, rois, complex_centroids, vessel_distance, vessel_diameter,
-            vessel_counts, hull, full]
+            vessel_counts, logs, hull, full]
     for directory in dirs:
-        os.mkdir(directory)
+        if not os.path.exists(directory):
+            os.mkdir(directory)
 
