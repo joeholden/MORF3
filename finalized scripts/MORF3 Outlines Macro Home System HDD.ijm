@@ -1,4 +1,4 @@
-roi_folder = "C:/Users/joema/Desktop/test/roi folder/"
+roi_folder = "C:/Users/joema/Desktop/test_images_vessel/rois/"
 
 title = getTitle();
 title_ne = File.nameWithoutExtension;
@@ -13,7 +13,7 @@ close();
 selectWindow("STD_C3-" + title);
 run("Green");
 run("Enhance Contrast", "saturated=0.35");
-run("Duplicate...", " ");
+run("Duplicate...", " ");  // as reference image later
 rename("Stacked");
 
 //Prepare the GFAP channel
@@ -44,16 +44,14 @@ run("Auto Threshold", "method=[Try all] white");
 choice = getNumber("prompt", 1);
 
 if (choice == 1){
-	close();
+	close(); // closes tiled window
 	run("Auto Threshold", "method=Huang white");
 	run("Duplicate...", " ");
 }else{
-	close();
+	close();  // closes tiled window
 	run("Auto Threshold", "method=Default white");
 	run("Duplicate...", " ");
 }
-
-
 
 //Remove outer edges' one pixel so Analyze particles doesnt get confused
 
@@ -73,16 +71,31 @@ run("Select None");
 run("Duplicate...", " ");
 selectWindow("STD_C3-" + title);
 close();
-selectWindow("STD_C3-2.nd2");
+
+//Because of the way ImageJ names windows, 1.nd2 and 2.nd2 get problematic window naming. The if, else if, else blocks fix this
+if (title_ne == "1"){
+	selectWindow("STD_C3-3.nd2");
+}else if (title_ne == "2"){
+	selectWindow("STD_C3-3.nd2");
+}else{
+	selectWindow("STD_C3-2.nd2");
+}
+
 
 run("Analyze Particles...", "size=3-Infinity exclude add");
 roiManager("Show None");
 
 //inverted binary
-selectWindow("STD_C3-1.nd2");
+if (title_ne == "1"){
+	selectWindow("STD_C3-2.nd2"); //changed +1*
+}else{
+	selectWindow("STD_C3-1.nd2");
+}
+
 run("Invert");
 run("Grays");
 
+//Remove outer edges' one pixel so Analyze particles doesnt get confused
 makeRectangle(0, 0, 1, height);
 run("Set...", "value=255");
 makeRectangle(0, 0, width, 1);
@@ -94,15 +107,25 @@ run("Set...", "value=255");
 run("Select None");
 
 run("Duplicate...", " ");
-selectWindow("STD_C3-1.nd2");
-close();
-selectWindow("STD_C3-3.nd2");
+//Because of the way ImageJ names windows, 1.nd2 and 2.nd2 get problematic window naming. The if, else if, else blocks fix this
+if (title_ne == "1"){
+	selectWindow("STD_C3-2.nd2"); //changed +1*
+	close();
+	selectWindow("STD_C3-1.nd2"); //changed *
+}else if (title_ne == "2"){
+	selectWindow("STD_C3-1.nd2"); //changed +1*
+	close();
+	selectWindow("STD_C3-2.nd2"); //changed *
+}else{
+	selectWindow("STD_C3-1.nd2");
+	close();
+	selectWindow("STD_C3-3.nd2");
+}
+
 
 run("Analyze Particles...", "size=3-Infinity exclude add");
-
 selectWindow("Stacked");
 waitForUser("Take Care of V5 ROIs");
-
 close();
 close();
 
