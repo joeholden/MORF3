@@ -1,4 +1,9 @@
+//Notes: Log window will save after each new image is processed. It is saved with a timestamp. If at the end of a session
+//you didn't make any mistakes like closing the 'Results' window, just keep the most recent file created. Otherwise you can
+//create a fixed file containing the results before the window was closed. 
+
 roi_folder = "C:/Users/joema/Desktop/test_images_vessel/rois/"
+results_folder = "C:/Users/joema/Desktop/results dirs/"
 
 title = getTitle();
 title_ne = File.nameWithoutExtension;
@@ -125,6 +130,7 @@ if (title_ne == "1"){
 
 run("Analyze Particles...", "size=3-Infinity exclude add");
 selectWindow("Stacked");
+selectWindow("ROI Manager");
 waitForUser("Take Care of V5 ROIs");
 close();
 close();
@@ -157,6 +163,11 @@ roiManager("Select", 0);
 waitForUser("Check Everything Looks Good");
 
 //Clean Up to Start Next Image
+getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
+MonthNames = newArray("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+m = MonthNames[month];
+saveAs("Results", results_folder + "Results_" + m + "_" + dayOfMonth + "_" + year + "-" + hour + ";" + minute + "," + second + msec +  ".csv");
+
 roiManager("Deselect");
 roiManager("Delete");
 
