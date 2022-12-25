@@ -2,8 +2,14 @@
 //you didn't make any mistakes like closing the 'Results' window, just keep the most recent file created. Otherwise you can
 //create a fixed file containing the results before the window was closed. 
 
-roi_folder = "C:/Users/joema/Desktop/test_images_vessel/rois/"
-results_folder = "C:/Users/joema/Desktop/results dirs/"
+
+//This is the only line of code you modify. End path in a forward slash /
+home = "C:/Users/joema/Desktop/home/3041 LE/" 
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+roi_folder = home + "ROIs"
+results_folder = home + "Excel Sheets/IJ Polygon Logs/"
 
 title = getTitle();
 title_ne = File.nameWithoutExtension;
@@ -148,7 +154,7 @@ run("Grays");
 roiManager("Select", 0);
 roiManager("Rename", "full_outline");
 run("Measure");
-roiManager("Save", roi_folder + "full_outline_" + title + ".roi");
+roiManager("Save", roi_folder + "/Full Complex/full_outline_" + title + ".roi");
 
 //Make Convex Hull Selection of Outline, Measure, and Save ROI
 run("Convex Hull");
@@ -156,7 +162,7 @@ roiManager("Add");
 roiManager("Select", 1);
 roiManager("Rename", "convex_hull");
 run("Measure");
-roiManager("Save", roi_folder + "convex_hull_" + title + ".roi");
+roiManager("Save", roi_folder + "/Convex Hull/convex_hull_" + title + ".roi");
 
 //Set up Pause State
 roiManager("Select", 0);
