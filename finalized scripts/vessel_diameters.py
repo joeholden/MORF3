@@ -11,9 +11,11 @@ If you have analyzed some images so far, the program reads in your previous data
 to see if it has been processed already. Only new images are processed. A new excel sheet is added each time so you
 don't have to worry about overwriting any existing data by accident. 
 """
+# Only Modify the HOME Directory
+HOME = "C:/Users/joema/Desktop/home/3041 LE/"
 
-IMGS_DIR = "C:/Users/joema/Desktop/test_images_vessel/images/"
-EXCEL_DIR = "C:/Users/joema/Desktop/test_images_vessel/excel_sheets/"
+IMGS_DIR = HOME + "Vessel and V5 PNGs/"
+EXCEL_DIR = HOME + "Excel Sheets/"
 RESOLUTION = 6.4455
 
 
@@ -112,9 +114,9 @@ def choice_to_continue():
 # If execution of the program was stopped at some point, we want to be able to
 # process the rest of the files without repeats
 try:
-    list_of_files = glob.glob(EXCEL_DIR + '*') # * means all if need specific format then *.csv
+    list_of_files = glob.glob(EXCEL_DIR + 'Vessel Diameters/*')  # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
-    df = pd.read_excel(os.path.join(EXCEL_DIR, latest_file), index_col='Unnamed: 0')
+    df = pd.read_excel(EXCEL_DIR + "Vessel Diameters/" + latest_file, index_col='Unnamed: 0')
 except ValueError:
     df = pd.DataFrame()
 
@@ -134,4 +136,4 @@ for root, dirs, files in os.walk(IMGS_DIR):
                 break
 
 print(df)
-df.to_excel(EXCEL_DIR + f'Diameters_{datetime.datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")}.xlsx')
+df.to_excel(EXCEL_DIR + f'Vessel Diameters/Diameters_{datetime.datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")}.xlsx')

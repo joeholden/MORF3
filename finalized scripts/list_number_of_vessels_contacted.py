@@ -12,9 +12,11 @@ Everything is output to a excel sheet and can be done in multiple sittings.
 Type the number of vessels on your keyboard followed by a 1 (continue) or 0 (exit)
 """
 
+# Only Modify the HOME Directory
+HOME = "C:/Users/joema/Desktop/home/3041 LE/"
 
-IMGS_DIR = "C:/Users/joema/Desktop/test_images_vessel/images/"
-EXCEL_DIR = "C:/Users/joema/Desktop/test_images_vessel/excel_sheets/"
+IMGS_DIR = HOME + "Vessel and V5 PNGs/"
+EXCEL_DIR = HOME + "Excel Sheets/Vessel Counts/11"
 RESOLUTION = 6.4455
 
 

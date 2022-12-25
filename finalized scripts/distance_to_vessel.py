@@ -23,14 +23,15 @@ Example:
 Press q when the circle touches a vessel (min radius)
 Press escape to terminate for some reason.
 """
+# Only Modify the HOME Directory
+HOME = "C:/Users/joema/Desktop/home/3041 LE/"
 
-ROI_PATH = "C:/Users/joema/Desktop/test_images_vessel/rois/"
-IMGS_DIR = "C:/Users/joema/Desktop/test_images_vessel/images/"
-EXCEL_DIR = "C:/Users/joema/Desktop/test_images_vessel/excel_sheets/"
+IMGS_DIR = HOME + "Vessel and V5 PNGs/"
+EXCEL_DIR = HOME + "Excel Sheets/"
+ROI_PATH = HOME + "ROIs/"
 RESOLUTION = 6.4455
 
 
-# ////////////////////////////////////////////////////
 def vessel_distance(roi_path, image_path, resolution):
     """
     Loads in an image with the astrocyte and vessels
@@ -98,9 +99,9 @@ def choice_to_continue():
 # If execution of the program was stopped at some point, we want to be able to
 # process the rest of the files without repeats
 try:
-    list_of_files = glob.glob(EXCEL_DIR + '*')  # * means all if need specific format then *.csv
+    list_of_files = glob.glob(EXCEL_DIR + "Distance to Vessel/*")  # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
-    df = pd.read_excel(os.path.join(EXCEL_DIR, latest_file), index_col='Unnamed: 0')
+    df = pd.read_excel(EXCEL_DIR + "Distance to Vessel/" + latest_file, index_col='Unnamed: 0')
 except ValueError:
     df = pd.DataFrame(columns=['Image', 'Radius (um)'])
 
@@ -109,7 +110,8 @@ for root, dirs, files in os.walk(IMGS_DIR):
         if os.path.join(root, file) in list(df['Image']):
             continue
         else:
-            rad_px, rad_um, img_path = vessel_distance(roi_path=os.path.join(ROI_PATH, file + ".roi"),
+            rad_px, rad_um, img_path = vessel_distance(roi_path=os.path.join(ROI_PATH, "Convex Hull/convex_hull_" +
+                                                                             file.replace(".png", ".nd2") + ".roi"),
                                                        image_path=os.path.join(root, file),
                                                        resolution=RESOLUTION)
             new_df = pd.DataFrame([[img_path, rad_um]], columns=['Image', 'Radius (um)'])
@@ -122,7 +124,7 @@ for root, dirs, files in os.walk(IMGS_DIR):
                 break
 
 print(df)
-df.to_excel(EXCEL_DIR + f'Distances to Closest Vessel_{datetime.datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")}.xlsx')
+df.to_excel(EXCEL_DIR + f'Distance to Vessel/Distances to Closest Vessel_{datetime.datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")}.xlsx')
 
 
 
