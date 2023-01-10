@@ -10,7 +10,17 @@ MATLAB_PATH = r"C:\Users\joema\Desktop\RETISTRUCT_Working\3238 RE\r.mat".replace
 SAVE_DIR = ""
 
 
-def excel_from_matlab(path, animal, side):
+def excel_from_matlab(path, animal, side, reference_degree=None):
+    """
+    :param path: path to .mat file from RETISTRUCT
+    :param animal: integer number identifier
+    :param side: left or right (eye)
+    :param reference_degree: If the cuts for a retina are such that Nasal direction
+        is within a tear instead of a border edge, another point of reference is chosen.
+        Use this parameter as the positive degree that that position points to. For LE,
+        zero degrees is temporal and for RE, zero degrees is nasal. Dorsal is always 90.
+    :return: a string showing the quadrant that each cell is found in.
+    """
     data = scipy.io.loadmat(MATLAB_PATH)
     data = data['Dss'][0][0][0]
     df = pd.DataFrame(data, columns=['Latitude (Radius Radians)', 'Longitude (Theta Radians)'])
@@ -25,8 +35,21 @@ def excel_from_matlab(path, animal, side):
         df['Theta Degrees in Left Eye Space'] = [i - 360 if i > 360 else i for i in df['Theta Degrees in Left Eye Space']]
         df['Theta Degrees in Left Eye Space'] = [i + 360 if i < 0 else i for i in
                                                  df['Theta Degrees in Left Eye Space']]
+        if reference_degree is not None:
+            df['Theta Degrees in Left Eye Space'] = [i + reference_degree
+                                                     for i in df['Theta Degrees in Left Eye Space']]
+            df['Theta Degrees in Left Eye Space'] = [i - 360 if i > 360 else i for i in
+                                                     df['Theta Degrees in Left Eye Space']]
     elif SIDE.lower() == 'left':
         df['Theta Degrees in Left Eye Space'] = df['Longitude (Theta Positive Degrees)']
+        if reference_degree is not None:
+            df['Theta Degrees in Left Eye Space'] = [i + 180 - reference_degree
+                                                     for i in df['Theta Degrees in Left Eye Space']]
+            df['Theta Degrees in Left Eye Space'] = [i - 360 if i > 360 else i for i in
+                                                     df['Theta Degrees in Left Eye Space']]
+            df['Theta Degrees in Left Eye Space'] = [i + 360 if i < 0 else i for i in
+                                                     df['Theta Degrees in Left Eye Space']]
+
     else:
         print('Spelling Error')
 
