@@ -4,9 +4,9 @@ import math
 import scipy.io
 
 # Keep flip DV unchecked
-ANIMAL_NUMBER = "3237"
-SIDE = "right"
-MATLAB_PATH = r"C:\Users\joema\Desktop\RETISTRUCT_Working\3237 LE\right.mat".replace("\\", os.sep)
+ANIMAL_NUMBER = "3238"
+SIDE = "left"
+MATLAB_PATH = r"C:\Users\joema\Desktop\RETISTRUCT_Working\3238 RE\r.mat".replace("\\", os.sep)
 SAVE_DIR = ""
 
 
