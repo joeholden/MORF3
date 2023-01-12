@@ -6,9 +6,19 @@ log_dir = "IJ Polygon Logs"
 regex_pattern = r"STD_C2-(\d+)"
 
 
-def consolidate_logsheets(path, pattern, output_folder, identifier):
-    all_rows = []
+def consolidate_logsheets(path, output_folder, identifier, pattern=r"STD_C2-(\d+)"):
+    """
+    Parses a folder of IJ logs and consolidates all the dataframes so there are no duplicates.
+    An additional column is added for animal number.
 
+    :param path: path to directory with all the IJ logs
+    :param pattern: regex pattern to find animal number
+    :param output_folder: path to output directory
+    :param identifier: eg. animal '3233 LE'
+    :return: None
+    """
+
+    all_rows = []
     for root, dirs, files in os.walk(path):
         for file in files:
             df = pd.read_csv(os.path.join(root, file))
@@ -25,11 +35,18 @@ def consolidate_logsheets(path, pattern, output_folder, identifier):
     all_rows = set(all_rows)
     all_rows = [list(i) for i in all_rows]
     final_df = pd.DataFrame(all_rows, columns=cols)
-    final_df = final_df.sort_values('Animal')
+    final_df = final_df.sort_values(['Animal', 'Area'], ascending=[True, False])
     final_df = final_df.reset_index()
     final_df = final_df.drop([' ', 'index'], axis=1)
 
     final_df.to_excel(f'{output_folder}/{identifier}_consolidated.xlsx')
 
+    # df is sorted now by animal number and by area. Convex hull
+    # always has larger area. Separate out both data frames and save.
+    convex_hull = final_df.iloc[::2, :]
+    full_outline = final_df.iloc[1::2, :]
+    convex_hull.to_excel(f'{identifier}_convex_hull.xlsx')
+    full_outline.to_excel(f'{identifier}_full_outline.xlsx')
 
-consolidate_logsheets(path=log_dir, pattern=regex_pattern, output_folder="IJ Polygon Logs", identifier='3233 RE')
+
+consolidate_logsheets(path=log_dir, output_folder="IJ Polygon Logs", identifier='3233 RE')
