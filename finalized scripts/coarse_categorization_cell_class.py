@@ -33,6 +33,7 @@ for root, dirs, files in os.walk(image_dir):
                 print('Pressed S')
                 image_identity[file.split(".")[0]] = "Foot Associated"
                 break
+        cv2.destroyAllWindows()
 
 df = pd.DataFrame(image_identity.items(), columns=['Cell', 'Class'])
 df.to_excel(f"{output_dir}/{identity}_classes.xlsx")
