@@ -4,10 +4,12 @@ import math
 import scipy.io
 
 # Keep flip DV unchecked
-ANIMAL_NUMBER = "3238"
-SIDE = "left"
-MATLAB_PATH = r"C:\Users\joema\Desktop\RETISTRUCT_Working\3238 RE\r.mat".replace("\\", os.sep)
-SAVE_DIR = ""
+ANIMAL_NUMBER = "3241"
+SIDE = "RE"
+HOME = "C:/Users/Acer/PycharmProjects/MORF3/DATA/RETISTRUCT/"
+MATLAB_PATH = HOME + ANIMAL_NUMBER + " " + SIDE + "/r.mat"
+REFERENCE_DEGREE = None
+SAVE_DIR = HOME
 
 
 def excel_from_matlab(path, animal, side, reference_degree=None):
@@ -30,7 +32,7 @@ def excel_from_matlab(path, animal, side, reference_degree=None):
     df['Longitude (Theta Positive Degrees)'] = [round((i * 360) / (2 * math.pi), 1) for i in df['Longitude (Theta ' \
                                                                                                 'Positive Radians)']]
 
-    if SIDE.lower() == 'right':
+    if SIDE.upper() == 'RE':
         df['Theta Degrees in Left Eye Space'] = list(map(lambda x: 180 - x, df['Longitude (Theta Positive Degrees)']))
         df['Theta Degrees in Left Eye Space'] = [i - 360 if i > 360 else i for i in df['Theta Degrees in Left Eye Space']]
         df['Theta Degrees in Left Eye Space'] = [i + 360 if i < 0 else i for i in
@@ -40,14 +42,12 @@ def excel_from_matlab(path, animal, side, reference_degree=None):
                                                      for i in df['Theta Degrees in Left Eye Space']]
             df['Theta Degrees in Left Eye Space'] = [i - 360 if i > 360 else i for i in
                                                      df['Theta Degrees in Left Eye Space']]
-    elif SIDE.lower() == 'left':
+    elif SIDE.upper() == 'LE':
         df['Theta Degrees in Left Eye Space'] = df['Longitude (Theta Positive Degrees)']
         if reference_degree is not None:
-            df['Theta Degrees in Left Eye Space'] = [i + 180 - reference_degree
+            df['Theta Degrees in Left Eye Space'] = [i + reference_degree
                                                      for i in df['Theta Degrees in Left Eye Space']]
             df['Theta Degrees in Left Eye Space'] = [i - 360 if i > 360 else i for i in
-                                                     df['Theta Degrees in Left Eye Space']]
-            df['Theta Degrees in Left Eye Space'] = [i + 360 if i < 0 else i for i in
                                                      df['Theta Degrees in Left Eye Space']]
 
     else:
@@ -75,7 +75,7 @@ def excel_from_matlab(path, animal, side, reference_degree=None):
 
     df['Region'] = list(map(region, df['Theta Degrees in Left Eye Space']))
 
-    df.to_excel(f'{ANIMAL_NUMBER}_{SIDE}_RETISTRUCT.xlsx')
+    df.to_excel(SAVE_DIR + f'{ANIMAL_NUMBER}_{SIDE}_RETISTRUCT.xlsx')
 
 
-excel_from_matlab(MATLAB_PATH, ANIMAL_NUMBER, SIDE)
+excel_from_matlab(MATLAB_PATH, ANIMAL_NUMBER, SIDE, reference_degree=REFERENCE_DEGREE)
