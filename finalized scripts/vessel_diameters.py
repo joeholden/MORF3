@@ -4,6 +4,7 @@ import os
 import glob
 import datetime
 import keyboard
+import re
 
 """
 This program allows you to start from your last location each time.
@@ -12,7 +13,7 @@ to see if it has been processed already. Only new images are processed. A new ex
 don't have to worry about overwriting any existing data by accident. 
 """
 # Only Modify the HOME Directory
-HOME = "C:/Users/joema/Desktop/home/3041 LE/"
+HOME = "C:/Users/joema/Desktop/Individual Retina Data/3231 RE/"
 
 IMGS_DIR = HOME + "Vessel and V5 PNGs/"
 EXCEL_DIR = HOME + "Excel Sheets/"
@@ -28,7 +29,11 @@ def vessel_diameter(image_path, resolution):
     the function ends and returns an array of diameters of the vessels and the image path.
     """
     image = cv2.imread(image_path)
-    cv2.namedWindow('image')
+    cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+    width = int(image.shape[1] * .90)
+    height = int(image.shape[0] * .90)
+    cv2.resizeWindow("image", width, height)
+
     x1, x2, y1, y2, mouse_x, mouse_y = None, None, None, None, None, None
     diameters = []
     all_points = []
@@ -116,24 +121,31 @@ def choice_to_continue():
 try:
     list_of_files = glob.glob(EXCEL_DIR + 'Vessel Diameters/*')  # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
-    df = pd.read_excel(EXCEL_DIR + "Vessel Diameters/" + latest_file, index_col='Unnamed: 0')
+    df = pd.read_excel(latest_file, index_col='Unnamed: 0')
 except ValueError:
     df = pd.DataFrame()
 
 for root, dirs, files in os.walk(IMGS_DIR):
     for file in files:
-        if file.split('/')[-1].strip('.png') in df.columns:
+        image_path = os.path.join(root, file).split("/")[-1]
+        id = re.search(pattern=r"/(\d+) (\w+)/Vessel and V5 PNGs/", string=root)
+        identifier = id[1] + "_" + id[2] + "_" + image_path.strip(".png")
+
+        if identifier in df.columns:
+            print(identifier)
             continue
         else:
             v_diameters, image_path = vessel_diameter(image_path=os.path.join(root, file), resolution=RESOLUTION)
             v_diameters = pd.Series(v_diameters)
             image_path = image_path.split('/')[-1].strip('.png')
-            new_df = pd.DataFrame(v_diameters, columns=[f'{image_path}'])
+            id = re.search(pattern=r"/(\d+) (\w+)/Vessel and V5 PNGs/", string=root)
+            identifier = id[1] + "_" + id[2] + "_" + image_path
+            new_df = pd.DataFrame(v_diameters, columns=[identifier])
             df = pd.concat([df, new_df], axis=1)
             print('Run Another? yes: 1, n: 0?\n')
             key = choice_to_continue()
             if key == 0:
                 break
 
-print(df)
 df.to_excel(EXCEL_DIR + f'Vessel Diameters/Diameters_{datetime.datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")}.xlsx')
+print(df.T)
