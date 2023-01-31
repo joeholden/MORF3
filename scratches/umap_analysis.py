@@ -11,11 +11,13 @@ import numpy as np
 RESOLUTION = 6.4455
 
 sns.set(style="darkgrid", context='notebook', rc={'figure.figsize': (14, 10)})
-data = pd.read_excel("Merged Data_27.xlsx")
-data = data.dropna()
-data['CCOM Distance'] = np.sqrt((data['FO_XM'] - data['CVH_X'])**2 + (data['FO_YM'] - data['CVH_Y'])**2)  # Pixels
-data['CCOM Distance'] = round(data['CCOM Distance'] / RESOLUTION, 2)
-data.to_excel('Consolidated + Distance.xlsx')
+data = pd.read_excel("Merged Data_31.xlsx")
+print(data.shape)
+# data = data.dropna()
+# print(data.shape)
+# data['CCOM Distance'] = np.sqrt((data['FO_XM'] - data['CVH_X'])**2 + (data['FO_YM'] - data['CVH_Y'])**2)  # Pixels
+# data['CCOM Distance'] = round(data['CCOM Distance'] / RESOLUTION, 2)
+# data.to_excel('Consolidated + Distance.xlsx')
 data_numeric = data.select_dtypes(exclude=['object'])  # Drop any columns with non-quantitative variables
 
 region = {'DT': 0, 'VT': 1, 'VN': 2, 'N': 3, 'V': 4, 'DN': 5}
@@ -39,7 +41,11 @@ cleaned_data = data[[
     "CVH_Perim.",
     "CVH_Feret",
     "Radius (um)",
-    "CCOM Distance"
+    "CCOM Distance",
+    "Mean Vessel Diameter",
+    "Min Vessel Diameter",
+    "Max Vessel Diameter",
+    "Number of Contacts"
 ]].values
 
 scaled_data = StandardScaler().fit_transform(cleaned_data)
@@ -66,5 +72,6 @@ plt.gca().set_aspect('equal', 'datalim')
 plt.title('UMAP projection of the Dataset', fontsize=24)
 plt.xlabel('UMAP1', fontsize=18)
 plt.ylabel('UMAP2', fontsize=18)
+plt.legend()
 
 plt.show()
